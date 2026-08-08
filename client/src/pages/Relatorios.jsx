@@ -141,6 +141,12 @@ export default function Relatorios() {
     const nowStr = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const valStr = displayValues ? 'com valores' : 'sem valores';
 
+    // Extract unique temas from filtered eventos
+    const temasSet = new Set();
+    eventos.forEach(e => { if (e.tema_mes) temasSet.add(e.tema_mes); });
+    const temasUnicos = Array.from(temasSet).filter(t => t && t.trim());
+    const temaStr = temasUnicos.length > 0 ? temasUnicos.join(' / ') : 'Nao definido';
+
     // ========== HEADER / TIMBRADO ==========
     // Top green bar
     doc.setFillColor(...TP.green);
@@ -176,7 +182,27 @@ export default function Relatorios() {
     doc.text(`Gerado: ${nowStr}`, pageW - margin, 18, { align: 'right' });
     doc.text(`${eventos.length} eventos • ${fornecedores.length} fornecedores`, pageW - margin, 24, { align: 'right' });
 
-    let y = 42;
+    // Tema do Mes - prominent box below header
+    doc.setFillColor(...TP.cream);
+    doc.roundedRect(margin, 38, pageW - margin * 2, 10, 1.5, 1.5, 'F');
+    doc.setFillColor(...TP.gold);
+    doc.roundedRect(margin, 38, 3, 10, 1.5, 1.5, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...TP.greenDark);
+    doc.text('TEMA DO MES:', margin + 6, 44);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...TP.dark);
+    doc.text(temaStr, margin + 40, 44);
+    if (temasUnicos.length > 1) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(7);
+      doc.setTextColor(...TP.gray);
+      doc.text(`(${temasUnicos.length} temas no periodo)`, pageW - margin - 2, 44, { align: 'right' });
+    }
+
+    let y = 54;
 
     // ========== FILTERS APPLIED ==========
     if (hasActiveFilters) {
@@ -203,7 +229,7 @@ export default function Relatorios() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
-    doc.text('📊  RESUMO EXECUTIVO', margin + 3, y + 5);
+    doc.text('RESUMO EXECUTIVO', margin + 3, y + 5);
     y += 10;
 
     const summaryBody = [
@@ -243,7 +269,7 @@ export default function Relatorios() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
-    doc.text('🎵  PROGRAMAÇÃO MUSICAL', margin + 3, y + 5);
+    doc.text('PROGRAMAÇÃO MUSICAL', margin + 3, y + 5);
     y += 10;
 
     const eventHeaders = displayValues
@@ -253,8 +279,9 @@ export default function Relatorios() {
     const eventRows = eventos.map(e => {
       const row = [
         e.data ? formatDate(e.data) : '',
-        (e.artista_nome || e.titulo || '').substring(0, 35),
-        (e.local || '').substring(0, 20),
+        (e.artista_nome || e.titulo || '').substring(0, 30),
+        (e.local || '').substring(0, 18),
+        (e.tema_mes || '').substring(0, 20),
       ];
       if (displayValues) row.push(formatCurrency(e.valor));
       row.push(e.status || '');
@@ -270,8 +297,8 @@ export default function Relatorios() {
       headStyles: { fillColor: TP.green, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
       alternateRowStyles: { fillColor: TP.lightGray },
       columnStyles: displayValues
-        ? { 0: { cellWidth: 22 }, 1: { cellWidth: 70 }, 2: { cellWidth: 40 }, 3: { cellWidth: 30, halign: 'right' }, 4: { cellWidth: 24 } }
-        : { 0: { cellWidth: 25 }, 1: { cellWidth: 80 }, 2: { cellWidth: 50 }, 3: { cellWidth: 30 } },
+        ? { 0: { cellWidth: 20 }, 1: { cellWidth: 55 }, 2: { cellWidth: 32 }, 3: { cellWidth: 38 }, 4: { cellWidth: 25, halign: 'right' }, 5: { cellWidth: 20 } }
+        : { 0: { cellWidth: 22 }, 1: { cellWidth: 60 }, 2: { cellWidth: 38 }, 3: { cellWidth: 42 }, 4: { cellWidth: 26 } },
       margin: { left: margin, right: margin },
     });
     y = doc.lastAutoTable.finalY + 6;
@@ -292,7 +319,7 @@ export default function Relatorios() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
-    doc.text('📅  ANÁLISE MENSAL', margin + 3, y + 5);
+    doc.text('ANALISE MENSAL', margin + 3, y + 5);
     y += 10;
 
     const monthHeaders = displayValues
@@ -300,7 +327,10 @@ export default function Relatorios() {
       : [['Mês', 'Eventos']];
 
     const monthRows = monthData.map(m => {
-      const row = [`${monthNamesFull[m.month]} ${m.year}`, String(m.count)];
+      const key = `${m.year}-${m.month}`;
+      const tema = monthTemaMap[key] || '-';
+      const row = [`${monthNamesFull[m.month]} ${m.year}`, tema.substring(0, 22)];
+      row.push(String(m.count));
       if (displayValues) {
         row.push(formatCurrency(m.valor), formatCurrency(m.count > 0 ? m.valor / m.count : 0));
       }
@@ -327,7 +357,7 @@ export default function Relatorios() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
-    doc.text('🎤  TOP FORNECEDORES', margin + 3, y + 5);
+    doc.text('TOP FORNECEDORES', margin + 3, y + 5);
     y += 10;
 
     const fornHeaders = displayValues
