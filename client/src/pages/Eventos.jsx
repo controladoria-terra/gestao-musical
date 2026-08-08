@@ -3,6 +3,7 @@ import {
   Plus, Search, Edit2, Trash2, Calendar, Filter, 
   DollarSign, RefreshCw, AlertTriangle, FileCheck, CheckCircle2
 } from 'lucide-react';
+import { useAuth } from "../context/AuthContext";
 import { 
   getEventos, createEvento, updateEvento, deleteEvento, getFornecedores 
 } from '../api';
@@ -33,6 +34,7 @@ const initialFormState = {
 };
 
 export default function Eventos() {
+  const { isAdmin } = useAuth();
   const [eventos, setEventos] = useState([]);
   const [fornecedores, setFornecedores] = useState([]);
   const [search, setSearch] = useState('');
@@ -274,14 +276,15 @@ export default function Eventos() {
           </div>
         </div>
 
-        {/* Action Button */}
-        <button
-          onClick={handleOpenCreateModal}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Novo Evento</span>
-        </button>
+        {isAdmin && (
+          <button
+            onClick={handleOpenCreateModal}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl shadow-xs transition-colors cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Novo Evento</span>
+          </button>
+        )}
       </div>
 
       {/* Eventos Table Card */}
@@ -348,6 +351,7 @@ export default function Eventos() {
                       <StatusBadge status={item.status} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
+                      {isAdmin ? (
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleOpenEditModal(item)}
@@ -364,6 +368,9 @@ export default function Eventos() {
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}

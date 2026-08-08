@@ -43,9 +43,32 @@ const fornecedorSchema = new mongoose.Schema(
       type: String,
       trim: true
     },
+    // NF file attachment
+    nf_arquivo: {
+      type: String, // base64 encoded file
+      default: null
+    },
+    nf_arquivo_nome: {
+      type: String,
+      default: null
+    },
+    nf_arquivo_tipo: {
+      type: String,
+      default: null
+    },
     enviado_financeiro: {
       type: Boolean,
       default: false
+    },
+    // Payment status flags
+    status_pagamento: {
+      type: String,
+      enum: ['nao_enviado', 'enviado', 'pago'],
+      default: 'nao_enviado'
+    },
+    data_pagamento: {
+      type: Date,
+      default: null
     },
     observacoes: {
       type: String,
