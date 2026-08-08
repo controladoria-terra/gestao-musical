@@ -27,9 +27,3 @@ services:
       - "traefik.http.routers.gestao-musical.tls=true"
       - "traefik.http.routers.gestao-musical.tls.certresolver=letsencrypt"
       - "traefik.http.services.gestao-musical.loadbalancer.server.port=3000"
-    networks:
-      - traefik_default
-
-networks:
-  traefik_default:
-    external: true
