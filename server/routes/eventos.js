@@ -99,6 +99,27 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// PATCH /api/eventos/:id - Partial update (used by Google Calendar sync)
+router.patch('/:id', async (req, res) => {
+  try {
+    const evento = await Evento.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    ).populate('fornecedor_id');
+
+    if (!evento) {
+      return res.status(404).json({ error: 'Evento não encontrado' });
+    }
+    res.json(evento);
+  } catch (error) {
+    if (error.kind === 'ObjectId') {
+      return res.status(400).json({ error: 'ID de evento inválido' });
+    }
+    res.status(500).json({ error: 'Erro ao atualizar evento', details: error.message });
+  }
+});
+
 // DELETE /api/eventos/:id - Delete evento by ID
 router.delete('/:id', async (req, res) => {
   try {
