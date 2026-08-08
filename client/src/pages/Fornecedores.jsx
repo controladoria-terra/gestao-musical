@@ -26,7 +26,8 @@ function PagamentoBadge({ status }) {
 const emptyForm = { nome: '', tipo: '', responsavel: '', recebedor: '', pix: '', cachet: 0, telefone: '', email: '', documento: '', notas_fiscais: '', enviado_financeiro: false, status_pagamento: 'nao_enviado', observacoes: '' };
 
 export default function Fornecedores() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, permissions } = useAuth();
+  const canSeeFinanceiro = isAdmin || permissions.viewFinanceiro;
   const [fornecedores, setFornecedores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -144,7 +145,7 @@ export default function Fornecedores() {
               </div>
               <div className="space-y-1 text-xs text-slate-500">
                 {f.responsavel && <p>Resp: {f.responsavel}</p>}
-                {f.cachet > 0 && <p className="font-semibold text-slate-700">Cachet: {formatCurrency(f.cachet)}</p>}
+                {canSeeFinanceiro && f.cachet > 0 && <p className="font-semibold text-slate-700">Cachet: {formatCurrency(f.cachet)}</p>}
                 {f.telefone && <p>📞 {f.telefone}</p>}
               </div>
               {/* NF actions */}
@@ -155,7 +156,7 @@ export default function Fornecedores() {
                     {isAdmin && <button onClick={() => handleNFAction(f, 'remove')} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-50 text-rose-600 text-xs font-medium"><X className="h-3 w-3" /> Remover</button>}
                   </>
                 ) : (
-                  isAdmin && (
+                  canSeeFinanceiro && isAdmin && (
                     <label className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50 text-slate-500 text-xs font-medium cursor-pointer hover:bg-slate-100">
                       <Upload className="h-3 w-3" /> Anexar NF
                       <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => e.target.files[0] && handleFileUpload(f._id, e.target.files[0])} disabled={uploadingId === f._id} />
@@ -202,24 +203,28 @@ export default function Fornecedores() {
                     {f.tipo && <span className="text-xs text-slate-400">{f.tipo}</span>}
                   </td>
                   <td className="px-4 py-3 text-slate-600">{f.responsavel || '-'}</td>
-                  <td className="px-4 py-3 font-medium text-slate-700">{formatCurrency(f.cachet)}</td>
+                  <td className="px-4 py-3 font-medium text-slate-700">{canSeeFinanceiro ? formatCurrency(f.cachet) : "—"}</td>
                   <td className="px-4 py-3">
                     {f.telefone && <div className="flex items-center gap-1 text-xs text-slate-500"><Phone className="h-3 w-3" />{f.telefone}</div>}
                     {f.email && <div className="flex items-center gap-1 text-xs text-slate-500"><Mail className="h-3 w-3" />{f.email}</div>}
                   </td>
                   <td className="px-4 py-3">
-                    {isAdmin ? (
-                      <select value={f.status_pagamento || 'nao_enviado'} onChange={(e) => handlePagamentoChange(f._id, e.target.value)} className="px-2 py-1 rounded-lg border border-slate-200 text-xs">
-                        <option value="nao_enviado">Não enviado</option>
-                        <option value="enviado">Enviado</option>
-                        <option value="pago">Pago</option>
-                      </select>
+                    {canSeeFinanceiro ? (
+                      isAdmin ? (
+                        <select value={f.status_pagamento || 'nao_enviado'} onChange={(e) => handlePagamentoChange(f._id, e.target.value)} className="px-2 py-1 rounded-lg border border-slate-200 text-xs">
+                          <option value="nao_enviado">Não enviado</option>
+                          <option value="enviado">Enviado</option>
+                          <option value="pago">Pago</option>
+                        </select>
+                      ) : (
+                        <PagamentoBadge status={f.status_pagamento} />
+                      )
                     ) : (
-                      <PagamentoBadge status={f.status_pagamento} />
+                      <span className="text-xs text-slate-400">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {f.nf_arquivo_nome ? (
+                    {canSeeFinanceiro && f.nf_arquivo_nome ? (
                       <div className="flex items-center gap-1">
                         <button onClick={() => handleNFAction(f, 'view')} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-blue-600 text-xs font-medium hover:bg-blue-100 transition-colors">
                           <Eye className="h-3 w-3" /> {f.nf_arquivo_nome.length > 20 ? f.nf_arquivo_nome.substring(0, 17) + '...' : f.nf_arquivo_nome}
@@ -227,7 +232,7 @@ export default function Fornecedores() {
                         {isAdmin && <button onClick={() => handleNFAction(f, 'remove')} className="p-1 rounded-lg text-rose-500 hover:bg-rose-50"><X className="h-3 w-3" /></button>}
                       </div>
                     ) : (
-                      isAdmin && (
+                      canSeeFinanceiro && isAdmin && (
                         <label className="flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50 text-slate-400 text-xs cursor-pointer hover:bg-slate-100 border border-dashed border-slate-300">
                           <Upload className="h-3 w-3" /> Anexar
                           <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => e.target.files[0] && handleFileUpload(f._id, e.target.files[0])} disabled={uploadingId === f._id} />

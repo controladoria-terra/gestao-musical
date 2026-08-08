@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Calendar, DollarSign, Clock, ArrowRight, RefreshCw, AlertCircle } from 'lucide-react';
 import { getDashboard, getEventos, getFornecedores } from '../api';
+import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/StatusBadge';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isAdmin, permissions } = useAuth();
+  const canSeeFinanceiro = isAdmin || permissions.viewFinanceiro;
   const [stats, setStats] = useState({
     totalFornecedores: 0,
     totalEventos: 0,
@@ -169,7 +172,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Card 3: Valor Total */}
+        {/* Card 3: Valor Total - hidden for viewers without financeiro permission */}
+        {canSeeFinanceiro && (
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200/80 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -184,6 +188,7 @@ export default function Dashboard() {
             <p className="text-xs text-slate-500 mt-1">Investimento total contratado</p>
           </div>
         </div>
+        )}
 
         {/* Card 4: Eventos Próximos */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200/80 hover:shadow-md transition-shadow">
@@ -233,7 +238,7 @@ export default function Dashboard() {
                   <th scope="col" className="px-6 py-3.5">Título</th>
                   <th scope="col" className="px-6 py-3.5">Artista / Banda</th>
                   <th scope="col" className="px-6 py-3.5">Local</th>
-                  <th scope="col" className="px-6 py-3.5">Valor</th>
+                  {canSeeFinanceiro && <th scope="col" className="px-6 py-3.5">Valor</th>}
                   <th scope="col" className="px-6 py-3.5">Status</th>
                 </tr>
               </thead>
@@ -254,7 +259,7 @@ export default function Dashboard() {
                       {evento.local || '-'}
                     </td>
                     <td className="px-6 py-4 font-medium text-slate-800 whitespace-nowrap">
-                      {formatCurrency(evento.valor)}
+                      {canSeeFinanceiro ? formatCurrency(evento.valor) : ""}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge status={evento.status} />

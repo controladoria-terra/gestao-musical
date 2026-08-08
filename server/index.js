@@ -16,7 +16,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongodb-4-s9pz-mongodb
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '15mb' })); // Increased limit for file uploads
+app.use(express.json({ limit: '15mb' }));
 
 // API Routes
 app.use('/api/auth', authRouter);
@@ -51,16 +51,30 @@ mongoose
     const User = require('./models/User');
     const bcrypt = require('bcryptjs');
     const userCount = await User.countDocuments();
+
     if (userCount === 0) {
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('admin123', salt);
+      const hashedPassword = await bcrypt.hash('123mudar', salt);
       await User.create({
         name: 'Administrador',
-        email: 'admin@terraparque.com',
+        email: 'controladoria@terraparque.com.br',
         password: hashedPassword,
         role: 'admin'
       });
-      console.log('Usuário admin criado: admin@terraparque.com / admin123');
+      console.log('Usuário admin criado: controladoria@terraparque.com.br / 123mudar');
+    } else {
+      // Migration: update old admin credentials to new ones
+      const oldAdmin = await User.findOne({ email: 'admin@terraparque.com' });
+      if (oldAdmin) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('123mudar', salt);
+        oldAdmin.email = 'controladoria@terraparque.com.br';
+        oldAdmin.password = hashedPassword;
+        oldAdmin.name = 'Administrador';
+        oldAdmin.role = 'admin';
+        await oldAdmin.save();
+        console.log('Admin migrado: controladoria@terraparque.com.br / 123mudar');
+      }
     }
 
     app.listen(PORT, () => {

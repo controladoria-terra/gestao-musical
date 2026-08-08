@@ -34,7 +34,8 @@ const initialFormState = {
 };
 
 export default function Eventos() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, permissions } = useAuth();
+  const canSeeFinanceiro = isAdmin || permissions.viewFinanceiro;
   const [eventos, setEventos] = useState([]);
   const [fornecedores, setFornecedores] = useState([]);
   const [search, setSearch] = useState('');
@@ -345,7 +346,7 @@ export default function Eventos() {
                       {item.local || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-800">
-                      {formatCurrency(item.valor)}
+                      {canSeeFinanceiro ? formatCurrency(item.valor) : "—"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge status={item.status} />

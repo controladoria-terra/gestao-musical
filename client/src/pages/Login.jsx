@@ -26,7 +26,6 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex p-4 bg-emerald-700/60 rounded-2xl mb-4 shadow-lg border border-emerald-600/30">
             <Music className="h-10 w-10 text-emerald-300" />
@@ -35,7 +34,6 @@ export default function Login() {
           <p className="text-emerald-300/80 text-sm mt-1">Terra Parque Eco Resort</p>
         </div>
 
-        {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-6 space-y-5">
           <h2 className="text-lg font-bold text-slate-800 text-center">Acesse o sistema</h2>
 
@@ -47,7 +45,6 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
             <div>
               <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Email</label>
               <div className="relative">
@@ -63,7 +60,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Senha</label>
               <div className="relative">
@@ -90,13 +86,8 @@ export default function Login() {
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
-
-          <div className="text-center text-xs text-slate-400 pt-2 border-t border-slate-100">
-            <p>Credenciais padrão:</p>
-            <p className="font-mono text-slate-500 mt-1">admin@terraparque.com / admin123</p>
-            <p className="text-[10px] text-slate-400 mt-2">Altere a senha após o primeiro login no painel Admin</p>
-          </div>
         </div>
+        <p className="text-center text-xs text-emerald-300/40 mt-4">Sistema de Gestão Musical • Terra Parque © 2026</p>
       </div>
     </div>
   );
