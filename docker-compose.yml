@@ -14,7 +14,7 @@ services:
       if [ ! -d /app/.git ]; then
         git clone https://github.com/controladoria-terra/gestao-musical.git /app;
       else
-        cd /app && git pull;
+        cd /app && git fetch origin && git reset --hard origin/main;
       fi &&
       cd /app/client && npm install && npx vite build &&
       cd /app/server && npm install --production &&
