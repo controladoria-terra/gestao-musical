@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Calendar, Music, Menu, X, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Music, Menu, X, ChevronRight, CalendarDays, BarChart3, RefreshCw, Settings } from 'lucide-react';
 import Dashboard from './pages/Dashboard';
 import Fornecedores from './pages/Fornecedores';
 import Eventos from './pages/Eventos';
+import Agenda from './pages/Agenda';
+import Relatorios from './pages/Relatorios';
+import Sincronizacao from './pages/Sincronizacao';
+import Admin from './pages/Admin';
 
 export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,20 +15,24 @@ export default function App() {
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Agenda', path: '/agenda', icon: CalendarDays },
     { name: 'Fornecedores', path: '/fornecedores', icon: Users },
     { name: 'Eventos', path: '/eventos', icon: Calendar },
+    { name: 'Relatórios', path: '/relatorios', icon: BarChart3 },
+    { name: 'Sincronização', path: '/sincronizacao', icon: RefreshCw },
+    { name: 'Admin', path: '/admin', icon: Settings },
   ];
 
   const getPageTitle = () => {
     switch (location.pathname) {
-      case '/dashboard':
-        return 'Dashboard General';
-      case '/fornecedores':
-        return 'Gestão de Fornecedores';
-      case '/eventos':
-        return 'Gestão de Eventos';
-      default:
-        return 'Gestão Musical';
+      case '/dashboard': return 'Dashboard';
+      case '/agenda': return 'Agenda Musical';
+      case '/fornecedores': return 'Gestão de Fornecedores';
+      case '/eventos': return 'Gestão de Eventos';
+      case '/relatorios': return 'Relatórios e Análises';
+      case '/sincronizacao': return 'Sincronização Google';
+      case '/admin': return 'Painel Administrativo';
+      default: return 'Gestão Musical';
     }
   };
 
@@ -79,11 +87,38 @@ export default function App() {
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-4 space-y-1.5 mt-2">
+          <nav className="p-4 space-y-1.5 mt-2 overflow-y-auto">
             <p className="px-3 text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-3">
               Menu Principal
             </p>
-            {navItems.map((item) => {
+            {navItems.slice(0, 4).map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) => `
+                    flex items-center justify-between px-3.5 py-3 rounded-xl font-medium text-sm transition-all duration-150
+                    ${isActive 
+                      ? 'bg-emerald-800 text-white shadow-sm border-l-4 border-emerald-400 pl-3' 
+                      : 'text-emerald-100 hover:bg-emerald-800/50 hover:text-white'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="h-5 w-5 text-emerald-300" />
+                    <span>{item.name}</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 opacity-50" />
+                </NavLink>
+              );
+            })}
+
+            <p className="px-3 text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-3 mt-4">
+              Ferramentas
+            </p>
+            {navItems.slice(4).map((item) => {
               const Icon = item.icon;
               return (
                 <NavLink
@@ -112,7 +147,7 @@ export default function App() {
         {/* Footer info in sidebar */}
         <div className="p-4 border-t border-emerald-800/80 bg-emerald-950/40 text-xs text-emerald-300/70">
           <p className="font-medium text-emerald-200">Sistema de Eventos</p>
-          <p className="mt-0.5">Versão 1.0.0 • React + Vite</p>
+          <p className="mt-0.5">Versão 1.1.0 • React + Vite</p>
         </div>
       </aside>
 
@@ -139,8 +174,12 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/agenda" element={<Agenda />} />
             <Route path="/fornecedores" element={<Fornecedores />} />
             <Route path="/eventos" element={<Eventos />} />
+            <Route path="/relatorios" element={<Relatorios />} />
+            <Route path="/sincronizacao" element={<Sincronizacao />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </main>
