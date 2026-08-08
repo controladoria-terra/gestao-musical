@@ -1,12 +1,25 @@
 services:
   gestao-musical:
-    build: .
+    image: node:20-alpine
+    working_dir: /app
     restart: unless-stopped
     environment:
       - MONGODB_URI=mongodb://host.docker.internal:32768/gestao-musical
       - PORT=3000
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    command: >
+      sh -c "
+      apk add --no-cache git &&
+      if [ ! -d /app/.git ]; then
+        git clone https://github.com/controladoria-terra/gestao-musical.git /app;
+      else
+        cd /app && git pull;
+      fi &&
+      cd /app/client && npm install && npx vite build &&
+      cd /app/server && npm install --production &&
+      cd /app/server && node index.js
+      "
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gestao-musical.rule=Host(`musical.controladoria.tech`)"
@@ -14,11 +27,9 @@ services:
       - "traefik.http.routers.gestao-musical.tls=true"
       - "traefik.http.routers.gestao-musical.tls.certresolver=letsencrypt"
       - "traefik.http.services.gestao-musical.loadbalancer.server.port=3000"
-      - "traefik.docker.network=traefik_default"
     networks:
-      - traefik_net
+      - traefik_default
 
 networks:
-  traefik_net:
+  traefik_default:
     external: true
-    name: traefik_default
