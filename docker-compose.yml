@@ -3,11 +3,11 @@ services:
     image: node:20-alpine
     working_dir: /app
     restart: unless-stopped
+    depends_on:
+      - mongodb
     environment:
-      - MONGODB_URI=mongodb://host.docker.internal:32768/gestao-musical
+      - MONGODB_URI=mongodb://gestao_user:gestao_pass@mongodb:27017/gestao-musical?authSource=admin
       - PORT=3000
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     command: >
       sh -c "
       apk add --no-cache git &&
@@ -27,3 +27,15 @@ services:
       - "traefik.http.routers.gestao-musical.tls=true"
       - "traefik.http.routers.gestao-musical.tls.certresolver=letsencrypt"
       - "traefik.http.services.gestao-musical.loadbalancer.server.port=3000"
+
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=gestao_user
+      - MONGO_INITDB_ROOT_PASSWORD=gestao_pass
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
