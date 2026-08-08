@@ -263,7 +263,7 @@ export default function Admin() {
           )}
 
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-            <p className="text-xs text-amber-700">📧 A senha padrão será <strong className="font-mono">123mudar</strong>. O convidado poderá alterá-la após o login.</p>
+            <p className="text-xs text-amber-700">📧 A senha padrão será <strong className="font-mono">terra123</strong>. O convidado poderá alterá-la após o login.</p>
           </div>
 
           <div className="flex gap-2 pt-2">

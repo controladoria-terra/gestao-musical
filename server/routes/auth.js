@@ -69,7 +69,7 @@ router.post('/invite', authMiddleware, requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Este email já está cadastrado' });
     }
     // Default password for invited users
-    const defaultPassword = '123mudar';
+    const defaultPassword = 'terra123';
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(defaultPassword, salt);
 
