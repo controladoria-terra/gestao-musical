@@ -273,8 +273,8 @@ export default function Relatorios() {
     y += 10;
 
     const eventHeaders = displayValues
-      ? [['Data', 'Artista / Título', 'Local', 'Valor', 'Status']]
-      : [['Data', 'Artista / Título', 'Local', 'Status']];
+      ? [['Data', 'Artista / Título', 'Local', 'Tema do Mês', 'Valor', 'Status']]
+      : [['Data', 'Artista / Título', 'Local', 'Tema do Mês', 'Status']];
 
     const eventRows = eventos.map(e => {
       const row = [
@@ -322,9 +322,18 @@ export default function Relatorios() {
     doc.text('ANALISE MENSAL', margin + 3, y + 5);
     y += 10;
 
+    // Build a map of month -> tema
+    const monthTemaMap = {};
+    eventos.forEach(e => {
+      if (!e.data) return;
+      const d = new Date(e.data);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      if (e.tema_mes && !monthTemaMap[key]) monthTemaMap[key] = e.tema_mes;
+    });
+
     const monthHeaders = displayValues
-      ? [['Mês', 'Eventos', 'Investimento', 'Média/Evento']]
-      : [['Mês', 'Eventos']];
+      ? [['Mês', 'Tema', 'Eventos', 'Investimento', 'Média/Evento']]
+      : [['Mês', 'Tema', 'Eventos']];
 
     const monthRows = monthData.map(m => {
       const key = `${m.year}-${m.month}`;
